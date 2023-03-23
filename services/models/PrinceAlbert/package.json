@@ -1,8 +1,8 @@
 {
-	"name": "VisaScheduler",
+	"name": "PrinceAlbertLanguageModel",
 	"version": "1.0.0",
 	"main": "index.js",
-	"repository": "https://github.com/HamraSaar/VisaScheduler.git",
+	"repository": "https://github.com/HamraSaar/aiwars.git",
 	"author": "saar.hamra <hamrasaar@gmail.com>",
 	"license": "MIT",
 	"scripts": {
@@ -10,16 +10,7 @@
 	},
 	"dependencies": {
 		"@huggingface/inference": "^1.6.0",
-		"@types/node": "^18.11.3",
-		"axios": "^1.3.4",
-		"csv-parser": "^3.0.0",
-		"exceljs": "^4.3.0",
-		"node-telegram-bot-api": "^0.59.0",
-		"puppeteer": "^19.1.0",
-		"winston": "^3.8.2"
+		"@types/node": "^18.11.3"
 	},
-	"devDependencies": {
-		"@types/node-telegram-bot-api": "^0.57.6",
-		"@types/winston": "^2.4.4"
-	}
+	"devDependencies": {}
 }

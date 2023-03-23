@@ -1,7 +1,0 @@
-node_modules
-*.xlsx
-.env
-**/*.log
-dist/*
-*.exe
-*.zip
