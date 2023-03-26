@@ -1,5 +1,7 @@
-import React, { FC } from 'react'
+import React, { FC, useEffect, useMemo } from 'react'
 import styled from 'styled-components'
+import TypeWriterEffect from 'react-typewriter-effect'
+import { AvatarPosition, DebateAvatar } from '../types/debateTypes'
 
 const MessageBubbleContainer = styled.div<{ position: AvatarPosition }>`
 	width: 100%;
@@ -32,6 +34,7 @@ const MessageBubbleTextMessage = styled.div`
 	font-size: 12px;
 	margin: 0;
 	color: #2b2b2b;
+	max-width: 250px;
 `
 
 const MessageBubbleArrow = styled.div`
@@ -52,24 +55,6 @@ const MessageBubbleArrow = styled.div`
 	}
 `
 
-interface MessageBubbleProps {
-	position: AvatarPosition
-}
-
-const MessageBubble: FC<MessageBubbleProps> = (props: MessageBubbleProps) => {
-	return (
-		<MessageBubbleContainer position={props.position}>
-			<MessageBubbleText>
-				<MessageBubbleTextName>Donald Duck</MessageBubbleTextName>
-				<MessageBubbleTextMessage>
-					This is some text ya hu
-				</MessageBubbleTextMessage>
-			</MessageBubbleText>
-			<MessageBubbleArrow />
-		</MessageBubbleContainer>
-	)
-}
-
 const AvatarContainer = styled.div`
 	display: flex;
 	flex-direction: column;
@@ -84,17 +69,50 @@ const AvatarHead = styled.img<{ position: AvatarPosition }>`
 		props.position === 'Left' ? `rotate(-10deg)` : `rotate(10deg)`};
 `
 
-type AvatarPosition = 'Left' | 'Right'
 interface AvatarProps {
-	position: AvatarPosition
-	img: string
+	avatar: DebateAvatar
+	text?: string
+	animate?: boolean
+	onAnimationEnd?: () => void
 }
 
 const Avatar: FC<AvatarProps> = (props: AvatarProps) => {
+	const ssu = useMemo(() => new SpeechSynthesisUtterance(), [])
+
+	ssu.onend = (event) => {
+		console.log('onend', { event })
+		props.onAnimationEnd && props.onAnimationEnd()
+	}
+
+	useEffect(() => {
+		console.log('Avatar useEffect', { ...props })
+		if (props.animate && props.text) {
+			ssu.text = props.text
+			window.speechSynthesis.speak(ssu)
+		}
+	}, [props, ssu])
+
 	return (
 		<AvatarContainer>
-			<MessageBubble position={props.position} />
-			<AvatarHead src={props.img} position={props.position} />
+			<MessageBubbleContainer position={props.avatar.position}>
+				<MessageBubbleText>
+					<MessageBubbleTextName>{props.avatar.name}</MessageBubbleTextName>
+					<MessageBubbleTextMessage>
+						{props.animate && props.text && (
+							<TypeWriterEffect
+								// textStyle={{ fontFamily: 'Red Hat Display' }}
+								startDelay={100}
+								cursorColor="black"
+								text={props.text}
+								typeSpeed={50}
+								eraseSpeed={100}
+							/>
+						)}
+					</MessageBubbleTextMessage>
+				</MessageBubbleText>
+				<MessageBubbleArrow />
+			</MessageBubbleContainer>
+			<AvatarHead src={props.avatar.image} position={props.avatar.position} />
 		</AvatarContainer>
 	)
 }
