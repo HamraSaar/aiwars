@@ -85,9 +85,22 @@
     }
 
     .chatItem{
-      margin: 15px;
+		margin: 15px;
+		color: rgba(21,75,57, 1);
+		width: auto;
+		padding: 10px 20px;
+		border-radius: 10px;
+		width: 70%;
     }
 
+	.chatItem:nth-child(even){
+		text-align: left;
+	}
+	
+	.chatItem:nth-child(odd){
+		text-align: right;
+		margin-left: 30%;
+	}
   </style>
 </head>
 
@@ -101,6 +114,9 @@
         </option>
         <option>
           joey from friends
+        </option>
+		<option>
+          rick from rick and morty
         </option>
       </select>
       <select id="person2">
@@ -131,7 +147,7 @@
   <script src="https://code.jquery.com/jquery-3.6.4.min.js"
     integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
   <script>
-    const API_KEY = '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';
+    const API_KEY = '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';
     const API_URL = 'https://api.openai.com/v1/chat/completions';
 
     function getRGBAColorFromString(s) {
@@ -140,15 +156,15 @@
       for (i = 0; i < s.length; i++) {
         sum += s.charCodeAt(i);
       }
-      let r = sum * 73 % 111;
-      let g = sum * 44 % 111;
-      let b = sum * 103 % 111;
-      let res = "rgba(" + (r) + "," + (g) + "," + (b) + ", 1)";
+      let r = sum * 71 % 256;
+      let g = sum * 41 % 256;
+      let b = sum * 103 % 256;
+      let res = "rgba(" + (r) + "," + (g) + "," + (b) + ", 0.2)";
       return res;
     }
 
     function addChatItem(item) {
-      $("#chat").append("<div style='color: " + getRGBAColorFromString(item.name) + ";' class='chatItem'><div class='small'>" + item.name + "</div><div>"
+      $("#chat").append("<div style='background-color: " + getRGBAColorFromString(item.name) + ";' class='chatItem'><div class='small'>" + item.name + "</div><div>"
          + item.message + "(" + item.tone + ")" + "</div></div>");
     }
 
@@ -157,7 +173,7 @@
       setTimeout(function () {
         let item = list.shift();
         addChatItem(item);
-        presentChat(list, 3000);
+        presentChat(list, 2000);
       }, delay);
     }
 
@@ -176,7 +192,7 @@
         let person1 = $("#person1").val();
         let person2 = $("#person2").val();
         let type = $("#type").val();
-        let content = "write an at least 1000 characters long " + type + " chat convesation between " + person1 + " and " + person2 + 
+        let content = "write an at least 2000 characters long " + type + " chat convesation between " + person1 + " and " + person2 + 
         " in JSON format, where each object represents one of the speaking turns. the object includes the following properties: name, message, tone." + 
         " an example of such an object is  {'name': 'person1', 'message': 'hello', 'tone': 'calm'}"
         $("#query").text(content);
