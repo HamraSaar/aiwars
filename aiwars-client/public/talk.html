@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WhAItsapap</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/css/bootstrap.min.css"
+    integrity="sha384-rbsA2VBKQhggwzxH7pPCaAqO46MgnOM80zW1RWuH61DGLwZJEdK2Kadq2F9CUG65" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.3/dist/js/bootstrap.min.js"
+    integrity="sha384-cuYeSxntonz0PPNlHhBs68uyIAVpIIOZZ5JqeqvYYIcEL727kskC66kF92t6Xl2V"
+    crossorigin="anonymous"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.3.0/css/all.min.css"
+    integrity="sha512-SzlrxWUlpfuzQ+pcUCosxcglQRNAq/DZjVsC0lE40xsADsfeQoEypE+enwcOiGjk/bSuGGKHEyjSoQ1zVisanQ=="
+    crossorigin="anonymous" referrerpolicy="no-referrer" />
+  <style>
+    * {
+      font-family: Verdana;
+    }
+
+    body {
+      min-height: 99vh;
+    }
+
+    input,
+    textarea,
+    [contenteditable] {
+      border-radius: 5px;
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      margin: 10px auto;
+      padding: 5px;
+      width: 100%;
+      outline: none;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    input:focus,
+    textarea:focus,
+    [contenteditable]:focus {
+      border: 1px solid rgba(0, 0, 0, 0.2);
+      outline: none;
+    }
+
+    .mark,
+    mark {
+      background-color: #FFEBB4;
+      color: #424242;
+      border: 1px solid rgba(0, 0, 0, 0.2) !important;
+      border-radius: 5px !important;
+      padding: 3px;
+    }
+
+    .loading {
+      background-size: cover;
+      background-repeat: no-repeat;
+      background-position: center center;
+      height: 200px;
+      width: 200px;
+      margin: auto;
+      position: fixed;
+      bottom: 0px;
+      left: 0px;
+    }
+
+    #selections {
+      display: flex;
+      flex-direction: row;
+      justify-content: center;
+      align-items: center;
+      padding: 10px;
+      margin-top: 40px;
+    }
+
+    #selections select {
+      margin: 10px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      outline: none;
+      border-radius: 5px;
+      padding: 10px;
+    }
+
+    .small {
+      font-size: 12px;
+    }
+
+    .chatItem{
+      margin: 15px;
+    }
+
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <div class="loading"></div>
+    <div id="selections">
+      <select id="person1">
+        <option>
+          ross from friends
+        </option>
+        <option>
+          joey from friends
+        </option>
+      </select>
+      <select id="person2">
+        <option>
+          monica from friends
+        </option>
+        <option>
+          rick from rick and morty
+        </option>
+      </select>
+      <select id="type">
+        <option>
+          funny
+        </option>
+        <option>
+          dramatic
+        </option>
+      </select>
+      <button class="btn btn-success" id="go">go</button>
+    </div>
+    <b class="small">the chatgpt query:</b>
+    <div contenteditable id="query">
+    </div>
+    <div id="chat">
+
+    </div>
+  </div>
+  <script src="https://code.jquery.com/jquery-3.6.4.min.js"
+    integrity="sha256-oP6HI9z1XaZNBrJURtCoUT5SUnxFr8s3BzRl+cbzUq8=" crossorigin="anonymous"></script>
+  <script>
+    const API_KEY = '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';
+    const API_URL = 'https://api.openai.com/v1/chat/completions';
+
+    function getRGBAColorFromString(s) {
+      if (!s) return "#fff";
+      let sum = 0;
+      for (i = 0; i < s.length; i++) {
+        sum += s.charCodeAt(i);
+      }
+      let r = sum * 73 % 111;
+      let g = sum * 44 % 111;
+      let b = sum * 103 % 111;
+      let res = "rgba(" + (r) + "," + (g) + "," + (b) + ", 1)";
+      return res;
+    }
+
+    function addChatItem(item) {
+      $("#chat").append("<div style='color: " + getRGBAColorFromString(item.name) + ";' class='chatItem'><div class='small'>" + item.name + "</div><div>"
+         + item.message + "(" + item.tone + ")" + "</div></div>");
+    }
+
+    function presentChat(list, delay) {
+      if (!delay) delay = 10;
+      setTimeout(function () {
+        let item = list.shift();
+        addChatItem(item);
+        presentChat(list, 3000);
+      }, delay);
+    }
+
+    $(document).ready(function () {
+      $("#go").click(function () {
+        $("#chat").html('');
+        getResponse(function (text) {
+          try {
+            let list = JSON.parse(text);
+            presentChat(list);
+          } catch { $("#chat").html(text); }
+        });
+      });
+
+      $("select").change(function () {
+        let person1 = $("#person1").val();
+        let person2 = $("#person2").val();
+        let type = $("#type").val();
+        let content = "write an at least 1000 characters long " + type + " chat convesation between " + person1 + " and " + person2 + 
+        " in JSON format, where each object represents one of the speaking turns. the object includes the following properties: name, message, tone." + 
+        " an example of such an object is  {'name': 'person1', 'message': 'hello', 'tone': 'calm'}"
+        $("#query").text(content);
+      });
+
+      $("select").first().change();
+    });
+
+    function getResponse(completion) {
+      $(".loading").css('background-image', "url('https://i.pinimg.com/originals/45/12/4d/45124d126d0f0b6d8f5c4d635d466246.gif')");
+      let content = $("#query").text();
+      fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${API_KEY}`
+        },
+        body: JSON.stringify({
+          "model": "gpt-3.5-turbo",
+          "messages": [{ "role": "system", "content": "we are writing a comedy sketch for SNL, to be viewed as a whatsapp chat." },
+          { "role": "user", "content": content }],
+          "temperature": 0.3,
+          "frequency_penalty": 0,
+          "presence_penalty": 0,
+          "max_tokens": 2000
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          let text = data.choices[0].message.content;
+          if (!text) text = "something happened! try again in a few minutes.."
+          if (completion)
+            completion(text);
+          $(".loading").css('background-image', "none");
+        })
+        .catch(error => {
+          console.error(error);
+          $(".loading").css('background-image', "none");
+        });
+    }
+
+  </script>
+</body>
+
+</html>
